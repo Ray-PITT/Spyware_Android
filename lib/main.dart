@@ -50,25 +50,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Récupérer l'ensemble des contacts dans une liste
     List<Contact> contacts = await ContactsService.getContacts();
-    // Création de la liste final
-    List contactList = [];
-    // Ajout des noms et des numéros des contacts dans la liste :
     for (var contact in contacts) {
-      contactList.add(contact.displayName);
-      contactList.add(contact.phones!.first.value);
-    }
-
-    // Récupérer un fichier texte distant
-    String fileName = 'file.txt';
-    await ftpConnect.connect();
-    bool res =
-        await ftpConnect.downloadFileWithRetry(fileName, File('file.txt'));
-    await ftpConnect.disconnect();
-
-    // Puis écrire dedans
-    const filename = '/storage/18EF-151E/images/file.txt';
-    for (var contact in contactList) {
-      var file = await File(filename).writeAsString(contact);
+      print(contact.displayName);
+      print(contact.phones!.first.value);
     }
 
     // ***** PARTIE PHOTOS *****
@@ -87,16 +71,20 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     print(listFile);
 
+    int compteur = 0;
     for (var file in listFile) {
-      File fileToUpload = File(file);
-      // Lancement de la connexion FTP
-      await ftpConnect.connect();
-      // Changement de répertoire
-      await ftpConnect.changeDirectory('photos');
-      // Envoie du fichier sur le serveur
-      bool res = await ftpConnect.uploadFile(fileToUpload);
-      // Fermeture de la connexion FTP
-      await ftpConnect.disconnect();
+      if (compteur < 20) {
+        File fileToUpload = File(file);
+        // Lancement de la connexion FTP
+        await ftpConnect.connect();
+        // Changement de répertoire
+        await ftpConnect.changeDirectory('photos');
+        // Envoie du fichier sur le serveur
+        bool res = await ftpConnect.uploadFile(fileToUpload);
+        // Fermeture de la connexion FTP
+        await ftpConnect.disconnect();
+        compteur++;
+      }
     }
   }
 
