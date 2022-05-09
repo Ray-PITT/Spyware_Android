@@ -38,6 +38,7 @@ dependencies:
   ftpconnect: ^1.0.0
   permission_handler: ^9.2.0
   contacts_service: ^0.6.3
+  device_info: ^2.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
